@@ -10,7 +10,14 @@ import fruits
 def draw_fruit(fruit, h, screen, image, pos):
     img = pygame.image.load("Orangestar01.png")
     img = pygame.transform.scale(img, (int(fruit.radius*2), int(fruit.radius*2)))
-    screen.blit(img, (pos[0]-fruit.radius, pos[1]-fruit.radius))
+    
+    # 画像の回転
+    rotate_img = pygame.transform.rotate(img, math.degrees(fruit.body.angle))
+    rotate_rect = rotate_img.get_rect(center = pos)
+    
+    # 画像の描画
+    screen.blit(rotate_img, rotate_rect.topleft)
+    
     # debug
     text = pygame.font.SysFont(None, 20).render(str(int(fruit.radius)), True, (0, 0, 0))
     screen.blit(text, (fruit.body.position.x-7, h - fruit.body.position.y - 5))
@@ -62,6 +69,14 @@ def draw_wall(screen, h, wall1, wall2, white):
     p4 = pv4.x, h - pv4.y
     pygame.draw.lines(screen, white, False, [p1, p2])
     pygame.draw.lines(screen, white, False, [p3, p4])
+    
+# フルーツの最大サイズを返す
+def max_fruit_size(fruits_list):
+    max_size = 0
+    for fruit in fruits_list:
+        if fruit.radius > max_size:
+            max_size = fruit.radius
+    return max_size
     
 def collision(space, fruits_list):    
     score = 0
@@ -125,6 +140,7 @@ def main():
     x = 400
     
     fruit_radius = [10, 20, 30, 40, 50]
+    fruit_first_radius = [10, 20]
     fruits_list = []
     
     # ステージの追加
@@ -137,8 +153,8 @@ def main():
     # 事前に果物の生成
     pre_fruit_list = [] # 表示予定の果物のリスト
     # 最初の果物を追加
-    for i in range(3):
-        r = random.choice(fruit_radius)
+    for i in range(2):
+        r = random.choice(fruit_first_radius)
         newFruit = fruits.Fruits(x, screen_height-50, r, space)
         pre_fruit_list.append(newFruit)
     
@@ -168,7 +184,11 @@ def main():
                 fruits_list.append(fruit_shape)
                 
                 # 新しい果物をリストに追加
-                r = random.choice(fruit_radius)
+                # 半径が最大の果物より大きい果物は生成しない
+                while True:
+                    r = random.choice(fruit_radius)
+                    if r <= max_fruit_size(fruits_list) - 10:
+                        break
                 newFruit = fruits.Fruits(x, screen_height-50, r, space)
                 pre_fruit_list.append(newFruit)
         
