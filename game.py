@@ -167,7 +167,7 @@ def main():
         draw_fruit2(pre_fruit_list[0], screen_height, screen, white, pos_pre1)
             
         # 次の果物の描画
-        pos_pre2 = (100, 50)
+        pos_pre2 = (700, 50)
         draw_fruit2(pre_fruit_list[1], screen_height, screen, white, pos_pre2)
             
         # 果物の衝突
