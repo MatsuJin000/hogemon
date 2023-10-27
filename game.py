@@ -4,6 +4,8 @@ import pymunk.pygame_util
 import math
 import sys, random
 from pygame.locals import *
+
+# 自作モジュールのインポート
 import fruits
 from stage import add_floor, draw_floor, add_wall, draw_wall
 
@@ -30,7 +32,6 @@ def draw_fruit2(fruit, h, screen, image, pos):
     text = pygame.font.SysFont(None, 20).render(str(int(fruit.r)), True, (0, 0, 0))
     screen.blit(text, (pos[0]-7, pos[1] - 5))
     
-# フルーツの最大サイズを返す
 def max_fruit_size(fruits_list):
     max_size = 0
     for fruit in fruits_list:
@@ -166,7 +167,7 @@ def main():
         draw_fruit2(pre_fruit_list[0], screen_height, screen, white, pos_pre1)
             
         # 次の果物の描画
-        pos_pre2 = (100, 50)
+        pos_pre2 = (700, 50)
         draw_fruit2(pre_fruit_list[1], screen_height, screen, white, pos_pre2)
             
         # 果物の衝突
