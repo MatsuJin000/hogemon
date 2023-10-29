@@ -2,6 +2,7 @@ import pygame
 import pymunk
 import pymunk.pygame_util
 import math
+import time
 import sys, random
 from pygame.locals import *
 
@@ -78,7 +79,7 @@ def max_fruit_size(fruits_list):
             max_size = fruit.radius
     return max_size
     
-def collision(space, fruits_list):    
+def collision_fruit(space, fruits_list):    
     score = 0
     
     i = 0
@@ -143,6 +144,10 @@ def main():
     fruit_first_radius = [10, 20]
     fruits_list = []
     
+    # マウスクリックの制御変数
+    click_flag = True
+    frame_cnt = 0
+    
     # ステージの追加
     floor_pos1 = (200, 10)
     floor_pos2 = (600, 10)
@@ -167,7 +172,7 @@ def main():
                 pygame.quit()
                 sys.exit()
             # クリックしたら果物を落下
-            elif event.type == MOUSEBUTTONDOWN:
+            elif click_flag and event.type == MOUSEBUTTONDOWN:
                 x, y = event.pos
                 fruit_r = pre_fruit_list[0].r
                 
@@ -191,6 +196,8 @@ def main():
                         break
                 newFruit = fruits.Fruits(x, screen_height-50, r, space)
                 pre_fruit_list.append(newFruit)
+                
+                click_flag = False
         
         # ステージの描画
         draw_floor(screen, screen_height, floor, white)
@@ -208,9 +215,9 @@ def main():
         # 次の果物の描画
         pos_pre2 = (700, 50)
         draw_fruit2(pre_fruit_list[1], screen_height, screen, white, pos_pre2)
-            
+        
         # 果物の衝突
-        score += collision(space, fruits_list)
+        score += collision_fruit(space, fruits_list)
         
         # スコアの描画 白色
         text = pygame.font.SysFont(None, 50).render(str(int(score)), True, white)
@@ -221,6 +228,11 @@ def main():
             if fruit.radius >= 110:
                 space.remove(fruit.body, fruit)
                 fruits_list.remove(fruit)
+                
+        # マウスクリックの制御
+        frame_cnt += 1
+        if frame_cnt % 120 == 0:
+            click_flag = True
         
         pygame.display.update()
         space.step(1/60)
