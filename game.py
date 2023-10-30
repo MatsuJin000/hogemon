@@ -22,7 +22,7 @@ def draw_floor(screen, h, floor, white):
     pv2 = body.position + floor.b.rotated(body.angle)
     p1 = pv1.x, h - pv1.y
     p2 = pv2.x, h - pv2.y
-    pygame.draw.lines(screen, white, False, [p1, p2])
+    pygame.draw.lines(screen, white, False, [p1, p2], 5)
 
 def add_wall(space, screen):
     body1 = pymunk.Body(body_type=pymunk.Body.STATIC)  
@@ -46,11 +46,38 @@ def draw_wall(screen, h, wall1, wall2, white):
     p2 = pv2.x, h - pv2.y
     p3 = pv3.x, h - pv3.y
     p4 = pv4.x, h - pv4.y
-    pygame.draw.lines(screen, white, False, [p1, p2])
-    pygame.draw.lines(screen, white, False, [p3, p4])
+    pygame.draw.lines(screen, white, False, [p1, p2], 5)
+    pygame.draw.lines(screen, white, False, [p3, p4], 5)
+    
+def draw_gameover_line(screen, h):
+    pygame.draw.line(screen, (100, 100, 200), (200, 100), (600, 100), 2)
+
+def select_img(r):
+    if r == 10:
+        img = "Orangestar01.png"
+    elif r == 20:
+        img = "Orangestar01.png"
+    elif r == 30:
+        img = "Orangestar01.png"
+    elif r == 40:
+        img = "Orangestar01.png"
+    elif r == 50:
+        img = "Orangestar01.png"
+    elif r == 60:
+        img = "Orangestar01.png"
+    elif r == 70:
+        img = "Orangestar01.png"
+    elif r == 80:
+        img = "Orangestar01.png"       
+    elif r == 90:
+        img = "Orangestar01.png"        
+    elif r == 100:
+        img = "Orangestar01.png"
+        
+    return img
 
 def draw_fruit(fruit, h, screen, image, pos):
-    img = pygame.image.load("Orangestar01.png")
+    img = pygame.image.load(select_img(fruit.radius))
     img = pygame.transform.scale(img, (int(fruit.radius*2), int(fruit.radius*2)))
     
     # 画像の回転
@@ -184,7 +211,7 @@ def main():
                 
                 # 果物を落下させる
                 clicked_fruit = pre_fruit_list.pop(0)
-                clicked_fruit.x, clicked_fruit.y = x, screen_height - 100
+                clicked_fruit.x, clicked_fruit.y = x, screen_height - 101
                 fruit_shape = clicked_fruit.add_fruit()
                 fruits_list.append(fruit_shape)
                 
@@ -207,6 +234,7 @@ def main():
         # ステージの描画
         draw_floor(screen, screen_height, floor, white)
         draw_wall(screen, screen_height, wall1, wall2, white)
+        draw_gameover_line(screen, screen_height)
                    
         # 果物の描画
         for fruit in fruits_list:
@@ -228,11 +256,15 @@ def main():
         text = pygame.font.SysFont(None, 50).render(str(int(score)), True, white)
         screen.blit(text, (10, 10))
         
-        # 果物の削除
         for fruit in fruits_list:
+            # 果物の削除
             if fruit.radius >= 110:
                 space.remove(fruit.body, fruit)
                 fruits_list.remove(fruit)
+            # ステージ外に出るとゲーム終了
+            if fruit.body.position.y >= 500:
+                pygame.quit()
+                sys.exit()                
                 
         # マウスクリックの制御
         frame_cnt += 1
