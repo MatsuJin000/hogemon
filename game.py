@@ -54,25 +54,25 @@ def draw_gameover_line(screen, h):
 
 def select_img(r):
     if r == 10:
-        img = "Orangestar01.png"
+        img = "img/Orangestar01.png"
     elif r == 20:
-        img = "Orangestar01.png"
+        img = "img/Orangestar01.png"
     elif r == 30:
-        img = "Orangestar01.png"
+        img = "img/Orangestar01.png"
     elif r == 40:
-        img = "Orangestar01.png"
+        img = "img/Orangestar01.png"
     elif r == 50:
-        img = "Orangestar01.png"
+        img = "img/Orangestar01.png"
     elif r == 60:
-        img = "Orangestar01.png"
+        img = "img/Orangestar01.png"
     elif r == 70:
-        img = "Orangestar01.png"
+        img = "img/Orangestar01.png"
     elif r == 80:
-        img = "Orangestar01.png"       
+        img = "img/Orangestar01.png"       
     elif r == 90:
-        img = "Orangestar01.png"        
+        img = "img/Orangestar01.png"        
     elif r == 100:
-        img = "Orangestar01.png"
+        img = "img/Orangestar01.png"
         
     return img
 
@@ -92,7 +92,7 @@ def draw_fruit(fruit, h, screen, image, pos):
     screen.blit(text, (fruit.body.position.x-7, h - fruit.body.position.y - 5))
     
 def draw_fruit2(fruit, h, screen, image, pos):
-    img = pygame.image.load("Orangestar01.png")
+    img = pygame.image.load(select_img(fruit.r))
     img = pygame.transform.scale(img, (int(fruit.r*2), int(fruit.r*2)))
     screen.blit(img, (pos[0]-fruit.r, pos[1]-fruit.r))
     # debug
