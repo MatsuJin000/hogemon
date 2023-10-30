@@ -184,7 +184,7 @@ def main():
                 
                 # 果物を落下させる
                 clicked_fruit = pre_fruit_list.pop(0)
-                clicked_fruit.x, clicked_fruit.y = x, screen_height - 50
+                clicked_fruit.x, clicked_fruit.y = x, screen_height - 100
                 fruit_shape = clicked_fruit.add_fruit()
                 fruits_list.append(fruit_shape)
                 
@@ -192,7 +192,12 @@ def main():
                 # 半径が最大の果物より大きい果物は生成しない
                 while True:
                     r = random.choice(fruit_radius)
-                    if r <= max_fruit_size(fruits_list) - 10:
+                    if len(fruits_list) <= 3:
+                        minus = 0
+                    else :
+                        minus = 10
+                        
+                    if r <= max_fruit_size(fruits_list) - minus:
                         break
                 newFruit = fruits.Fruits(x, screen_height-50, r, space)
                 pre_fruit_list.append(newFruit)
