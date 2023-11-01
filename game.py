@@ -158,6 +158,9 @@ def main():
     white = (255, 255, 255)
     black = (0, 0, 0)
     
+    bkg = pygame.image.load("img/background.jpg")
+    bkg = pygame.transform.scale(bkg, (screen_width, screen_height))
+    
     # 物理空間の設定
     space = pymunk.Space()
     space.gravity = (0.0, -900.0)
@@ -191,7 +194,6 @@ def main():
         pre_fruit_list.append(newFruit)
     
     while True:
-        screen.fill(black)
         
         for event in pygame.event.get():
             # 終了処理
@@ -230,6 +232,9 @@ def main():
                 pre_fruit_list.append(newFruit)
                 
                 click_flag = False
+                
+        # 背景の描画
+        screen.blit(bkg, (0, 0))
         
         # ステージの描画
         draw_floor(screen, screen_height, floor, white)
@@ -242,7 +247,14 @@ def main():
             draw_fruit(fruit, screen_height, screen, white, pos)
         
         # 操作する果物の描画
-        pos_pre1 = (400, 50)
+        current_x, current_y = pygame.mouse.get_pos()
+        fruit_r = pre_fruit_list[0].r
+        if current_x <= 200 + fruit_r:
+            current_x = 200 + fruit_r + 5
+        elif current_x >= 600 - fruit_r:
+            current_x = 600 - fruit_r - 5
+            
+        pos_pre1 = (current_x, 50)
         draw_fruit2(pre_fruit_list[0], screen_height, screen, white, pos_pre1)
             
         # 次の果物の描画
