@@ -12,9 +12,6 @@ from pygame.locals import *
 # 自作モジュールのインポート
 import fruits
 
-# Webカメラの設定
-cap = cv2.VideoCapture(0)
-
 def add_floor(space, pos1, pos2, screen):
     body = pymunk.Body(body_type=pymunk.Body.STATIC)  
     shape = pymunk.Segment(body, pos1, pos2, 5)  
@@ -148,36 +145,6 @@ def collision_fruit(space, fruits_list):
         
     return score
 
-# MediaPipeの手の追跡を設定
-mp_hands = mp.solutions.hands
-hands = mp_hands.Hands(static_image_mode=False,
-                       max_num_hands=1,
-                       min_detection_confidence=0.5,
-                       min_tracking_confidence=0.5)
-
-# 手の座標を取得する関数
-def get_hand_position(image):
-    image = cv2.cvtColor(cv2.flip(image, 1), cv2.COLOR_BGR2RGB)
-    image.flags.writeable = False
-    results = hands.process(image)
-
-    if results.multi_hand_landmarks:
-        for hand_landmarks in results.multi_hand_landmarks:
-            # ここで中指の付け根の座標を取得（他の部位を使いたい場合はインデックスを変更）
-            thumb_tip = hand_landmarks.landmark[mp_hands.HandLandmark.MIDDLE_FINGER_MCP]
-            return int(thumb_tip.x * screen_width), int(thumb_tip.y * screen_height)
-    return None
-
-#指の接触を検出する関数(人差し指、親指）
-def detect_thumb_index_contact(hand_landmarks, threshold=0.05):
-    index_finger_tip = np.array([hand_landmarks.landmark[mp.solutions.hands.HandLandmark.INDEX_FINGER_TIP].x,
-                                 hand_landmarks.landmark[mp.solutions.hands.HandLandmark.INDEX_FINGER_TIP].y])
-    thumb_tip = np.array([hand_landmarks.landmark[mp.solutions.hands.HandLandmark.THUMB_TIP].x,
-                          hand_landmarks.landmark[mp.solutions.hands.HandLandmark.THUMB_TIP].y])
-    distance = np.linalg.norm(index_finger_tip - thumb_tip)
-    return distance < threshold
-
-
 def main():
     
     # 初期化
@@ -232,22 +199,6 @@ def main():
         pre_fruit_list.append(newFruit)
     
     while True:
-
-        # Webカメラから画像を読み込む(手の位置)
-        ret, frame = cap.read()
-        if not ret:
-                break
-        
-
-
-        # 手の位置を取得
-        hand_pos = get_hand_position(frame)
-
-         # 手の位置が有効ならば、その位置にマウスカーソルを移動
-        if hand_pos:
-            pygame.mouse.set_pos(hand_pos)
-
-        
         
         for event in pygame.event.get():
             # 終了処理
