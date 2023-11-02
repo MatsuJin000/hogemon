@@ -358,6 +358,7 @@ def main():
         space.step(1/60)
         clock.tick(60)
 
+    pygame.quit()
     cap.release()
 if __name__ == '__main__':
     main()
