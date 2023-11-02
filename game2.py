@@ -56,11 +56,7 @@ def draw_gameover_line(screen, h):
     pygame.draw.line(screen, (100, 100, 200), (200, 100), (600, 100), 2)
 
 def select_img(r):
-    if r == 10:
-        img = "img/Orangestar01.png"
-    elif r == 20:
-        img = "img/Orangestar01.png"
-    elif r == 30:
+    if r == 30:
         img = "img/Orangestar01.png"
     elif r == 40:
         img = "img/Orangestar01.png"
@@ -72,10 +68,6 @@ def select_img(r):
         img = "img/Orangestar01.png"
     elif r == 80:
         img = "img/Orangestar01.png"       
-    elif r == 90:
-        img = "img/Orangestar01.png"        
-    elif r == 100:
-        img = "img/Orangestar01.png"
         
     return img
 
@@ -101,6 +93,9 @@ def draw_fruit2(fruit, h, screen, image, pos):
     # debug
     text = pygame.font.SysFont(None, 20).render(str(int(fruit.r)), True, (0, 0, 0))
     screen.blit(text, (pos[0]-7, pos[1] - 5))
+    
+def draw_line(screen, color, x):
+    pygame.draw.line(screen, color, (x, 50), (x, 580), 3)
     
 def max_fruit_size(fruits_list):
     max_size = 0
@@ -196,6 +191,8 @@ def main():
     clock = pygame.time.Clock()
     white = (255, 255, 255)
     black = (0, 0, 0)
+    red = (200, 100, 100)
+    blue = (100, 100, 200)
     
     bkg = pygame.image.load("img/background.jpg")
     bkg = pygame.transform.scale(bkg, (screen_width, screen_height))
@@ -209,8 +206,8 @@ def main():
     
     x = 400
     
-    fruit_radius = [10, 20, 30, 40, 50]
-    fruit_first_radius = [10, 20]
+    fruit_radius = [30, 40, 50, 60]
+    fruit_first_radius = [30]
     fruits_list = []
     
     # マウスクリックの制御変数
@@ -245,12 +242,6 @@ def main():
         ret, frame = cap.read()
         if not ret:
                 break
-
-        # 手の位置を取得
-        # if contact:
-        #     hand_pos = get_hand_position(frame)
-        # else :
-        #     hand_pos = current_x, current_y
         
         hand_pos = get_hand_position(frame)
         
@@ -295,9 +286,6 @@ def main():
             if event.type == QUIT:
                 pygame.quit()
                 sys.exit()
-                
-        # debug
-        print(click_flag)
             
         if click_flag and not contact: 
             fruit_r = pre_fruit_list[0].r
@@ -352,6 +340,10 @@ def main():
             current_x = 600 - fruit_r - 5
             
         pos_pre1 = (current_x, 50)
+        if click_flag :
+            draw_line(screen, red, current_x)
+        else :
+            draw_line(screen, blue, current_x)
         draw_fruit2(pre_fruit_list[0], screen_height, screen, white, pos_pre1)
             
         # 次の果物の描画
@@ -367,7 +359,7 @@ def main():
         
         for fruit in fruits_list:
             # 果物の削除
-            if fruit.radius >= 110:
+            if fruit.radius >= 90:
                 space.remove(fruit.body, fruit)
                 fruits_list.remove(fruit)
             # ステージ外に出るとゲーム終了
@@ -375,7 +367,7 @@ def main():
                 pygame.quit()
                 sys.exit()          
                 
-        if frame_cnt % 120 == 0:
+        if frame_cnt % 100 == 0:
             click_flag = True      
                 
         # マウスクリックの制御
