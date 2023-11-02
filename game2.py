@@ -214,8 +214,12 @@ def main():
     fruits_list = []
     
     # マウスクリックの制御変数
-    click_flag = True
+    click_flag = False
     frame_cnt = 0
+    
+    # 手の位置の初期化
+    contact = False
+    current_x, current_y = 400, 0
 
     # 前回のフレームでの接触状態を追跡する変数
     was_contact = False 
@@ -243,11 +247,30 @@ def main():
                 break
 
         # 手の位置を取得
+        # if contact:
+        #     hand_pos = get_hand_position(frame)
+        # else :
+        #     hand_pos = current_x, current_y
+        
         hand_pos = get_hand_position(frame)
-
-         # 手の位置が有効ならば、その位置にマウスカーソルを移動
-        if hand_pos:
-            pygame.mouse.set_pos(hand_pos)
+        
+        # 手が認識されない場合
+        if hand_pos is None :
+            x, y = 400, 0
+            click_flag = False
+        # 手が認識されているが、指が接触していない場合
+        elif not contact :
+            x, y = current_x, current_y
+            if click_flag:
+                click_flag = True
+            else :
+                click_flag = False
+        else :
+            x, y = hand_pos[0], hand_pos[1]
+            if click_flag:
+                click_flag = True
+            else :
+                click_flag = False
 
         frame = cv2.flip(frame, 1)
         frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
@@ -261,7 +284,6 @@ def main():
                     if detect_thumb_index_contact(hand_landmarks):
                         contact = True
                         if not was_contact:  # 前回接触していなくて、今回接触した場合
-                            print("クリックされました")
                             was_contact = True
                         break  # 右手での接触を検出したら、他の手のチェックはスキップ
         
@@ -273,38 +295,40 @@ def main():
             if event.type == QUIT:
                 pygame.quit()
                 sys.exit()
-            # クリックしたら果物を落下
-            elif click_flag and contact: 
-                x, y = hand_pos[0], hand_pos[1]
-                fruit_r = pre_fruit_list[0].r
                 
-                # 果物が画面外に出ないようにする
-                if x <= 200 + fruit_r:
-                    x = 200 + fruit_r + 5
-                elif x >= 600 - fruit_r:
-                    x = 600 - fruit_r - 5
-                
-                # 果物を落下させる
-                clicked_fruit = pre_fruit_list.pop(0)
-                clicked_fruit.x, clicked_fruit.y = x, screen_height - 101
-                fruit_shape = clicked_fruit.add_fruit()
-                fruits_list.append(fruit_shape)
-                
-                # 新しい果物をリストに追加
-                # 半径が最大の果物より大きい果物は生成しない
-                while True:
-                    r = random.choice(fruit_radius)
-                    if len(fruits_list) <= 3:
-                        minus = 0
-                    else :
-                        minus = 10
-                        
-                    if r <= max_fruit_size(fruits_list) - minus:
-                        break
-                newFruit = fruits.Fruits(x, screen_height-50, r, space)
-                pre_fruit_list.append(newFruit)
-                
-                click_flag = False
+        # debug
+        print(click_flag)
+            
+        if click_flag and not contact: 
+            fruit_r = pre_fruit_list[0].r
+            
+            # 果物が画面外に出ないようにする
+            if x <= 200 + fruit_r:
+                x = 200 + fruit_r + 5
+            elif x >= 600 - fruit_r:
+                x = 600 - fruit_r - 5
+            
+            # 果物を落下させる
+            clicked_fruit = pre_fruit_list.pop(0)
+            clicked_fruit.x, clicked_fruit.y = x, screen_height - 101
+            fruit_shape = clicked_fruit.add_fruit()
+            fruits_list.append(fruit_shape)
+            
+            # 新しい果物をリストに追加
+            # 半径が最大の果物より大きい果物は生成しない
+            while True:
+                r = random.choice(fruit_radius)
+                if len(fruits_list) <= 3:
+                    minus = 0
+                else :
+                    minus = 10
+                    
+                if r <= max_fruit_size(fruits_list) - minus:
+                    break
+            newFruit = fruits.Fruits(x, screen_height-50, r, space)
+            pre_fruit_list.append(newFruit)
+            
+            click_flag = False
                 
         # 背景の描画
         screen.blit(bkg, (0, 0))
@@ -320,7 +344,7 @@ def main():
             draw_fruit(fruit, screen_height, screen, white, pos)
         
         # 操作する果物の描画
-        current_x, current_y = pygame.mouse.get_pos()
+        current_x, current_y = x, y
         fruit_r = pre_fruit_list[0].r
         if current_x <= 200 + fruit_r:
             current_x = 200 + fruit_r + 5
@@ -349,12 +373,13 @@ def main():
             # ステージ外に出るとゲーム終了
             if fruit.body.position.y >= 500:
                 pygame.quit()
-                sys.exit()                
+                sys.exit()          
+                
+        if frame_cnt % 120 == 0:
+            click_flag = True      
                 
         # マウスクリックの制御
         frame_cnt += 1
-        if frame_cnt % 120 == 0:
-            click_flag = True
         
         pygame.display.update()
         space.step(1/60)
