@@ -30,8 +30,8 @@ def draw_floor(screen, h, floor, white):
 def add_wall(space, screen):
     body1 = pymunk.Body(body_type=pymunk.Body.STATIC)  
     body2 = pymunk.Body(body_type=pymunk.Body.STATIC)  
-    shape1 = pymunk.Segment(body1, (200, 10), (200, 500), 5)  
-    shape2 = pymunk.Segment(body2, (600, 10), (600, 500), 5)  
+    shape1 = pymunk.Segment(body1, (220, 10), (220, 500), 5)  
+    shape2 = pymunk.Segment(body2, (580, 10), (580, 500), 5)  
     shape1.friction = 1
     shape2.friction = 1
     space.add(body1, shape1)
@@ -53,21 +53,21 @@ def draw_wall(screen, h, wall1, wall2, white):
     pygame.draw.lines(screen, white, False, [p3, p4], 5)
     
 def draw_gameover_line(screen, h):
-    pygame.draw.line(screen, (100, 100, 200), (200, 100), (600, 100), 2)
+    pygame.draw.line(screen, (100, 100, 250), (220, 100), (580, 100), 2)
 
 def select_img(r):
     if r == 30:
-        img = "img/Orangestar01.png"
+        img = "img/tamago.png"
     elif r == 40:
-        img = "img/Orangestar01.png"
+        img = "img/nazokusa.png"
     elif r == 50:
-        img = "img/Orangestar01.png"
-    elif r == 60:
-        img = "img/Orangestar01.png"
+        img = "img/pamo.png"
     elif r == 70:
-        img = "img/Orangestar01.png"
-    elif r == 80:
-        img = "img/Orangestar01.png"       
+        img = "img/futachi.png"
+    elif r == 90:
+        img = "img/gon.png"
+    elif r == 130:
+        img = "img/gigas.png"       
         
     return img
 
@@ -119,7 +119,17 @@ def collision_fruit(space, fruits_list):
                     # 新しい果物を作成
                     new_x = (fruit1.body.position.x + fruit2.body.position.x) / 2
                     new_y = (fruit1.body.position.y + fruit2.body.position.y) / 2
-                    newFruit = fruits.Fruits(new_x, new_y, fruit1.radius+10, space)
+                    if fruit1.radius == 50:
+                        new_r = 70
+                    elif fruit1.radius == 70:
+                        new_r = 90
+                    elif fruit1.radius == 90:
+                        new_r = 130
+                    elif fruit1.radius == 130:
+                        new_r = 150
+                    else :
+                        new_r = fruit1.radius + 10
+                    newFruit = fruits.Fruits(new_x, new_y, new_r, space)
                     new_fruit_shape = newFruit.add_fruit()
                     
                     # 古い果物を削除
@@ -203,10 +213,9 @@ def main():
     
     # スコアの初期化
     score = 0
-    
     x = 400
     
-    fruit_radius = [30, 40, 50, 60]
+    fruit_radius = [30, 40, 50]
     fruit_first_radius = [30]
     fruits_list = []
     
@@ -222,8 +231,8 @@ def main():
     was_contact = False 
 
     # ステージの追加
-    floor_pos1 = (200, 10)
-    floor_pos2 = (600, 10)
+    floor_pos1 = (220, 10)
+    floor_pos2 = (580, 10)
     floor = add_floor(space, floor_pos1, floor_pos2, screen)
     
     wall1, wall2 = add_wall(space, screen)
@@ -235,8 +244,10 @@ def main():
         r = random.choice(fruit_first_radius)
         newFruit = fruits.Fruits(x, screen_height-50, r, space)
         pre_fruit_list.append(newFruit)
+        
+    running = True
     
-    while True:
+    while running:
 
         # Webカメラから画像を読み込む(手の位置)
         ret, frame = cap.read()
@@ -291,10 +302,10 @@ def main():
             fruit_r = pre_fruit_list[0].r
             
             # 果物が画面外に出ないようにする
-            if x <= 200 + fruit_r:
-                x = 200 + fruit_r + 5
-            elif x >= 600 - fruit_r:
-                x = 600 - fruit_r - 5
+            if x <= 220 + fruit_r:
+                x = 220 + fruit_r + 5
+            elif x >= 580 - fruit_r:
+                x = 580 - fruit_r - 5
             
             # 果物を落下させる
             clicked_fruit = pre_fruit_list.pop(0)
@@ -305,7 +316,11 @@ def main():
             # 新しい果物をリストに追加
             # 半径が最大の果物より大きい果物は生成しない
             while True:
+                # rは確率で決定
+                # 低い半径が出やすいようにする
                 r = random.choice(fruit_radius)
+                if r == 60:
+                    r = 80
                 if len(fruits_list) <= 3:
                     minus = 0
                 else :
@@ -334,10 +349,10 @@ def main():
         # 操作する果物の描画
         current_x, current_y = x, y
         fruit_r = pre_fruit_list[0].r
-        if current_x <= 200 + fruit_r:
-            current_x = 200 + fruit_r + 5
-        elif current_x >= 600 - fruit_r:
-            current_x = 600 - fruit_r - 5
+        if current_x <= 220 + fruit_r:
+            current_x = 220 + fruit_r + 5
+        elif current_x >= 580 - fruit_r:
+            current_x = 580 - fruit_r - 5
             
         pos_pre1 = (current_x, 50)
         if click_flag :
@@ -354,18 +369,22 @@ def main():
         score += collision_fruit(space, fruits_list)
         
         # スコアの描画 白色
-        text = pygame.font.SysFont(None, 50).render(str(int(score)), True, white)
-        screen.blit(text, (10, 10))
+        text = pygame.font.SysFont(None, 70).render(str(int(score)), True, white)
+        screen.blit(text, (30, 30))
         
         for fruit in fruits_list:
             # 果物の削除
-            if fruit.radius >= 90:
+            if fruit.radius >= 150:
                 space.remove(fruit.body, fruit)
                 fruits_list.remove(fruit)
+                clear = True
+                running = False
             # ステージ外に出るとゲーム終了
             if fruit.body.position.y >= 500:
-                pygame.quit()
-                sys.exit()          
+                clear = False
+                running = False
+                # pygame.quit()
+                # sys.exit()          
                 
         if frame_cnt % 100 == 0:
             click_flag = True      
@@ -377,7 +396,29 @@ def main():
         space.step(1/60)
         clock.tick(60)
 
+    while True:
+        for event in pygame.event.get():
+            # 終了処理
+            if event.type == QUIT:
+                pygame.quit()
+                cap.release()
+                sys.exit()
+                
+        if clear :
+            str1 = "Clear!"
+        else :
+            str1 = "Game Over"
+                
+        screen.fill(black)
+        text1 = pygame.font.SysFont(None, 70).render(str1, True, white)
+        screen.blit(text1, (300, 200))
+        text2 = pygame.font.SysFont(None, 50).render("Score: " + str(int(score)), True, white)
+        screen.blit(text2, (300, 300))
+        
+        pygame.display.update()
+
     pygame.quit()
     cap.release()
+    
 if __name__ == '__main__':
     main()
