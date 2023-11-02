@@ -159,11 +159,13 @@ def get_hand_position(image):
     results = hands.process(image)
 
     if results.multi_hand_landmarks:
-        for hand_landmarks in results.multi_hand_landmarks:
-            # ここで中指の付け根の座標を取得（他の部位を使いたい場合はインデックスを変更）
-            thumb_tip = hand_landmarks.landmark[mp_hands.HandLandmark.MIDDLE_FINGER_MCP]
-            return int(thumb_tip.x * screen_width), int(thumb_tip.y * screen_height)
+        for hand_landmarks, handedness in zip(results.multi_hand_landmarks, results.multi_handedness):
+            # 右手のみ処理する
+            if handedness.classification[0].label == 'Right':
+                thumb_tip = hand_landmarks.landmark[mp_hands.HandLandmark.MIDDLE_FINGER_MCP]
+                return int(thumb_tip.x * screen_width), int(thumb_tip.y * screen_height)
     return None
+
 
 #指の接触を検出する関数(人差し指、親指）
 def detect_thumb_index_contact(hand_landmarks, threshold=0.05):
