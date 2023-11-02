@@ -12,9 +12,6 @@ from pygame.locals import *
 # 自作モジュールのインポート
 import fruits
 
-# Webカメラの設定
-cap = cv2.VideoCapture(0)
-
 def add_floor(space, pos1, pos2, screen):
     body = pymunk.Body(body_type=pymunk.Body.STATIC)  
     shape = pymunk.Segment(body, pos1, pos2, 5)  
@@ -177,6 +174,8 @@ def detect_thumb_index_contact(hand_landmarks, threshold=0.05):
     distance = np.linalg.norm(index_finger_tip - thumb_tip)
     return distance < threshold
 
+# Webカメラの設定
+cap = cv2.VideoCapture(0)
 
 def main():
     
@@ -216,6 +215,9 @@ def main():
     click_flag = True
     frame_cnt = 0
 
+    # 前回のフレームでの接触状態を追跡する変数
+    was_contact = False 
+
     # ステージの追加
     floor_pos1 = (200, 10)
     floor_pos2 = (600, 10)
@@ -237,8 +239,6 @@ def main():
         ret, frame = cap.read()
         if not ret:
                 break
-        
-
 
         # 手の位置を取得
         hand_pos = get_hand_position(frame)
@@ -247,16 +247,33 @@ def main():
         if hand_pos:
             pygame.mouse.set_pos(hand_pos)
 
+        frame = cv2.flip(frame, 1)
+        frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+        frame_rgb.flags.writeable = False
+        results = hands.process(frame_rgb)
         
+        contact = False  # このフレームでの接触状態
+        if results.multi_hand_landmarks:
+            for hand_landmarks, handness in zip(results.multi_hand_landmarks, results.multi_handedness):
+                if handness.classification[0].label == "Right":  # 右手のみを検出
+                    if detect_thumb_index_contact(hand_landmarks):
+                        contact = True
+                        if not was_contact:  # 前回接触していなくて、今回接触した場合
+                            print("クリックされました")
+                            was_contact = True
+                        break  # 右手での接触を検出したら、他の手のチェックはスキップ
         
+        if not contact:
+            was_contact = False  # このフレームでは接触がなかった場合、was_contactをリセット
+
         for event in pygame.event.get():
             # 終了処理
             if event.type == QUIT:
                 pygame.quit()
                 sys.exit()
             # クリックしたら果物を落下
-            elif click_flag and event.type == MOUSEBUTTONDOWN:
-                x, y = event.pos
+            elif click_flag and contact: 
+                x, y = hand_pos[0], hand_pos[1]
                 fruit_r = pre_fruit_list[0].r
                 
                 # 果物が画面外に出ないようにする
@@ -341,5 +358,6 @@ def main():
         space.step(1/60)
         clock.tick(60)
 
+    cap.release()
 if __name__ == '__main__':
     main()
