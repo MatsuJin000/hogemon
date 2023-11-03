@@ -12,6 +12,13 @@ from pygame.locals import *
 # 自作モジュールのインポート
 import fruits
 
+# 初期化
+pygame.init()
+
+ball_spawn_sound = pygame.mixer.Sound("sounds/Motion-Pop08-1.mp3")
+ball_merge_sound = pygame.mixer.Sound("sounds/Motion-Pop03-1.mp3")
+
+
 def add_floor(space, pos1, pos2, screen):
     body = pymunk.Body(body_type=pymunk.Body.STATIC)  
     shape = pymunk.Segment(body, pos1, pos2, 5)  
@@ -116,6 +123,7 @@ def collision_fruit(space, fruits_list):
             distance = fruit1.body.position.get_distance(fruit2.body.position)
             if distance <= fruit1.radius + fruit2.radius:
                 if fruit1.radius == fruit2.radius:
+                    ball_merge_sound.play()
                     # 新しい果物を作成
                     new_x = (fruit1.body.position.x + fruit2.body.position.x) / 2
                     new_y = (fruit1.body.position.y + fruit2.body.position.y) / 2
@@ -157,6 +165,8 @@ hands = mp_hands.Hands(static_image_mode=False,
                        min_detection_confidence=0.5,
                        min_tracking_confidence=0.5)
 
+
+
 # 手の座標を取得する関数
 def get_hand_position(image):
     image = cv2.cvtColor(cv2.flip(image, 1), cv2.COLOR_BGR2RGB)
@@ -188,6 +198,9 @@ def main():
     
     # 初期化
     pygame.init()
+
+    ball_spawn_sound = pygame.mixer.Sound("sounds/Motion-Pop08-1.mp3")
+    ball_merge_sound = pygame.mixer.Sound("sounds/Motion-Pop03-1.mp3")
     
     # 画面の大きさ
     global screen_width
@@ -312,6 +325,9 @@ def main():
             clicked_fruit.x, clicked_fruit.y = x, screen_height - 101
             fruit_shape = clicked_fruit.add_fruit()
             fruits_list.append(fruit_shape)
+
+            # 果物をクリックしたときの音
+            ball_spawn_sound.play()
             
             # 新しい果物をリストに追加
             # 半径が最大の果物より大きい果物は生成しない
