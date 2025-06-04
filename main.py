@@ -165,8 +165,6 @@ hands = mp_hands.Hands(static_image_mode=False,
                        min_detection_confidence=0.5,
                        min_tracking_confidence=0.5)
 
-
-
 # 手の座標を取得する関数
 def get_hand_position(image):
     image = cv2.cvtColor(cv2.flip(image, 1), cv2.COLOR_BGR2RGB)
@@ -180,7 +178,6 @@ def get_hand_position(image):
                 thumb_tip = hand_landmarks.landmark[mp_hands.HandLandmark.MIDDLE_FINGER_MCP]
                 return int(thumb_tip.x * screen_width), int(thumb_tip.y * screen_height)
     return None
-
 
 #指の接触を検出する関数(人差し指、親指）
 def detect_thumb_index_contact(hand_landmarks, threshold=0.05):
@@ -203,14 +200,13 @@ def main():
     ball_merge_sound = pygame.mixer.Sound("sounds/Motion-Pop03-1.mp3")
     
     # 画面の大きさ
-    global screen_width
+    global screen_width, screen_height
     screen_width = 800
-    global screen_height
     screen_height = 600
     
     # 画面の設定
     screen = pygame.display.set_mode((screen_width, screen_height))
-    pygame.display.set_caption("Suika")
+    pygame.display.set_caption("Hogemon")
     clock = pygame.time.Clock()
     white = (255, 255, 255)
     black = (0, 0, 0)
@@ -326,7 +322,7 @@ def main():
             fruit_shape = clicked_fruit.add_fruit()
             fruits_list.append(fruit_shape)
 
-            # 果物をクリックしたときの音
+            # 果物を落としたときの音
             ball_spawn_sound.play()
             
             # 新しい果物をリストに追加
@@ -378,7 +374,9 @@ def main():
         draw_fruit2(pre_fruit_list[0], screen_height, screen, white, pos_pre1)
             
         # 次の果物の描画
-        pos_pre2 = (700, 50)
+        txt = pygame.font.SysFont(None, 50).render("Next", True, white)
+        screen.blit(txt, (663, 20))
+        pos_pre2 = (700, 100)
         draw_fruit2(pre_fruit_list[1], screen_height, screen, white, pos_pre2)
         
         # 果物の衝突
@@ -411,6 +409,16 @@ def main():
         pygame.display.update()
         space.step(1/60)
         clock.tick(60)
+        
+        # ボーンの描画
+        if results.multi_hand_landmarks:
+            for hand_landmarks in results.multi_hand_landmarks:
+                mp.solutions.drawing_utils.draw_landmarks(frame, hand_landmarks, mp_hands.HAND_CONNECTIONS)
+
+        cv2.imshow('Hand Tracking', frame)
+        
+        if cv2.waitKey(1) & 0xFF == ord('q'):
+            break
 
     while True:
         for event in pygame.event.get():
